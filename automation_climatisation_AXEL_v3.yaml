@@ -1,0 +1,53 @@
+alias: Climatisation - Pilotage Axel
+description: Pilotage automatique climatisation Axel selon mode manuel + mode vacances
+mode: single
+
+triggers:
+  - minutes: /3
+    trigger: time_pattern
+
+conditions: []
+
+actions:
+  - variables:
+      consigne: |
+        {% if is_state('input_boolean.mode_vacance','on') %}off
+        {% else %}
+          {% set mode = states('input_select.mode_chauffage_axel') %}
+          {% if mode == 'STOP' %}off
+          {% elif mode == 'MODEJOUR' %}{{ states('sensor.mode_chauffage_global') | regex_findall_index('\d+\.?\d*') | float(18.5) }}
+          {% else %}{{ mode | regex_findall_index('\d+\.?\d*') | float(19) }}
+          {% endif %}
+        {% endif %}
+      t_axel: "{{ state_attr('climate.climatisation_axel', 'current_temperature') | float(20) }}"
+      etat_actuel: "{{ states('climate.climatisation_axel') }}"
+
+  - choose:
+      - conditions:
+          - "{{ consigne == 'off' }}"
+          - "{{ etat_actuel != 'off' }}"
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: climate.climatisation_axel
+
+      - conditions:
+          - "{{ consigne != 'off' }}"
+          - "{{ (consigne - t_axel) >= 0.5 }}"
+          - "{{ etat_actuel != 'heat' }}"
+        sequence:
+          - service: climate.set_temperature
+            target:
+              entity_id: climate.climatisation_axel
+            data:
+              temperature: "{{ consigne }}"
+              hvac_mode: heat
+
+      - conditions:
+          - "{{ consigne != 'off' }}"
+          - "{{ (consigne - t_axel) < 0.5 }}"
+          - "{{ etat_actuel != 'off' }}"
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: climate.climatisation_axel

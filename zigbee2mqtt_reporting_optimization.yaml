@@ -1,0 +1,316 @@
+# Configuration Optimisée pour le Reporting des Capteurs Zigbee2MQTT
+# Date: 2025-12-18
+# Objectif: Réduire le délai de mise à jour des capteurs température/humidité
+
+# INSTRUCTIONS D'APPLICATION:
+# 1. Identifier les IEEE addresses de vos capteurs dans Zigbee2MQTT Web UI
+# 2. Copier cette section device_options dans votre configuration.yaml
+# 3. Redémarrer Zigbee2MQTT pour appliquer les changements
+
+# NOTE IMPORTANTE:
+# Certains capteurs (notamment Xiaomi/Aqara et certains modèles Tuya) ont des
+# limitations firmware qui ignorent les commandes de configuration du reporting.
+# Dans ce cas, il faut utiliser un script Home Assistant pour interroger
+# régulièrement les capteurs.
+
+# ====================================================================
+# CONFIGURATION À COPIER DANS zigbee2mqtt/configuration.yaml
+# ====================================================================
+
+device_options:
+  # Options par défaut pour TOUS les appareils
+  legacy: false
+  retain: true
+
+  # ----------------------------------------------------------------
+  # ROUTEURS MESH (Prises connectées)
+  # ----------------------------------------------------------------
+  # Ces appareils sont sur secteur et peuvent être sollicités plus fréquemment
+
+  # Prise_Mesh_Salon (IEEE address à remplacer)
+  0x0000000000000001:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: Prise_Mesh_Salon
+    # Intervalle de rapport d'état rapide (30 secondes)
+    state_action: true
+    homeassistant:
+      name: Prise Mesh Salon
+      room: Salon
+    # Options de reporting pour la consommation électrique (si disponible)
+    power_on_behavior: previous
+    reporting:
+      # Report toutes les 30 secondes OU si changement significatif
+      power:
+        min_interval: 10    # 10 secondes minimum
+        max_interval: 30    # 30 secondes maximum
+        min_change: 1       # Report si delta > 1W
+      current:
+        min_interval: 10
+        max_interval: 30
+        min_change: 0.1     # Report si delta > 0.1A
+      voltage:
+        min_interval: 60
+        max_interval: 300
+        min_change: 5       # Report si delta > 5V
+
+  # Prise_Mesh_Cuisine (IEEE address à remplacer)
+  0x0000000000000002:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: Prise_Mesh_Cuisine
+    state_action: true
+    homeassistant:
+      name: Prise Mesh Cuisine
+      room: Cuisine
+    power_on_behavior: previous
+    reporting:
+      power:
+        min_interval: 10
+        max_interval: 30
+        min_change: 1
+      current:
+        min_interval: 10
+        max_interval: 30
+        min_change: 0.1
+      voltage:
+        min_interval: 60
+        max_interval: 300
+        min_change: 5
+
+  # ----------------------------------------------------------------
+  # CAPTEURS TEMPÉRATURE / HUMIDITÉ (Sur batterie)
+  # ----------------------------------------------------------------
+  # Configuration optimisée pour équilibrer réactivité et autonomie
+
+  # th_cuisine (IEEE address à remplacer)
+  0x0000000000000003:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_cuisine
+    homeassistant:
+      name: Cuisine T°/H%
+      room: Cuisine
+    # Configuration du reporting
+    reporting:
+      # Température: Report toutes les 3-5 minutes OU si changement > 0.3°C
+      temperature:
+        min_interval: 60      # 1 minute minimum (évite spam)
+        max_interval: 180     # 3 minutes maximum
+        min_change: 0.3       # Report si delta > 0.3°C (sensible)
+      # Humidité: Report toutes les 3-5 minutes OU si changement > 3%
+      humidity:
+        min_interval: 60      # 1 minute minimum
+        max_interval: 180     # 3 minutes maximum
+        min_change: 3         # Report si delta > 3%
+      # Batterie: Report toutes les 1 heure OU si changement > 5%
+      battery:
+        min_interval: 600     # 10 minutes minimum
+        max_interval: 3600    # 1 heure maximum
+        min_change: 5         # Report si delta > 5%
+    # Options d'optimisation de batterie
+    battery_low: 10          # Alerte batterie faible à 10%
+    battery_critical: 5      # Alerte batterie critique à 5%
+
+  # th_salon (IEEE address à remplacer)
+  0x0000000000000004:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_salon
+    homeassistant:
+      name: Salon T°/H%
+      room: Salon
+    reporting:
+      temperature:
+        min_interval: 60
+        max_interval: 180
+        min_change: 0.3
+      humidity:
+        min_interval: 60
+        max_interval: 180
+        min_change: 3
+      battery:
+        min_interval: 600
+        max_interval: 3600
+        min_change: 5
+    battery_low: 10
+    battery_critical: 5
+
+  # th_loann (IEEE address à remplacer)
+  0x0000000000000005:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_loann
+    homeassistant:
+      name: Chambre Loann T°/H%
+      room: Chambre Loann
+    reporting:
+      temperature:
+        min_interval: 60
+        max_interval: 180
+        min_change: 0.3
+      humidity:
+        min_interval: 60
+        max_interval: 180
+        min_change: 3
+      battery:
+        min_interval: 600
+        max_interval: 3600
+        min_change: 5
+    battery_low: 10
+    battery_critical: 5
+
+  # th_meva (IEEE address à remplacer)
+  0x0000000000000006:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_meva
+    homeassistant:
+      name: Chambre Meva T°/H%
+      room: Chambre Meva
+    reporting:
+      temperature:
+        min_interval: 60
+        max_interval: 180
+        min_change: 0.3
+      humidity:
+        min_interval: 60
+        max_interval: 180
+        min_change: 3
+      battery:
+        min_interval: 600
+        max_interval: 3600
+        min_change: 5
+    battery_low: 10
+    battery_critical: 5
+
+  # th_axel (IEEE address à remplacer)
+  0x0000000000000007:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_axel
+    homeassistant:
+      name: Chambre Axel T°/H%
+      room: Chambre Axel
+    reporting:
+      temperature:
+        min_interval: 60
+        max_interval: 180
+        min_change: 0.3
+      humidity:
+        min_interval: 60
+        max_interval: 180
+        min_change: 3
+      battery:
+        min_interval: 600
+        max_interval: 3600
+        min_change: 5
+    battery_low: 10
+    battery_critical: 5
+
+  # th_parents (IEEE address à remplacer)
+  0x0000000000000008:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_parents
+    homeassistant:
+      name: Chambre Parents T°/H%
+      room: Chambre Parents
+    reporting:
+      temperature:
+        min_interval: 60
+        max_interval: 180
+        min_change: 0.3
+      humidity:
+        min_interval: 60
+        max_interval: 180
+        min_change: 3
+      battery:
+        min_interval: 600
+        max_interval: 3600
+        min_change: 5
+    battery_low: 10
+    battery_critical: 5
+
+  # th_terrasse (IEEE address à remplacer)
+  0x0000000000000009:  # REMPLACER PAR VOTRE IEEE ADDRESS
+    friendly_name: th_terrasse
+    homeassistant:
+      name: Terrasse T°/H%
+      room: Extérieur
+    reporting:
+      temperature:
+        # Terrasse: intervalle légèrement plus long (peut varier plus vite)
+        min_interval: 60
+        max_interval: 300     # 5 minutes (variations extérieures plus rapides)
+        min_change: 0.5       # Tolérance plus large en extérieur
+      humidity:
+        min_interval: 60
+        max_interval: 300
+        min_change: 5         # Variations plus importantes en extérieur
+      battery:
+        min_interval: 600
+        max_interval: 3600
+        min_change: 5
+    battery_low: 10
+    battery_critical: 5
+
+# ====================================================================
+# ALTERNATIVE: SCRIPT HOME ASSISTANT POUR POLLING ACTIF
+# ====================================================================
+# Si vos capteurs ne supportent pas la reconfiguration du reporting,
+# utilisez ce script dans Home Assistant (automation.yaml ou scripts.yaml)
+
+# AUTOMATION: Polling régulier des capteurs toutes les 3 minutes
+# automation:
+#   - alias: "Zigbee - Rafraîchir capteurs T/H toutes les 3 minutes"
+#     description: "Force la mise à jour des capteurs qui ne reportent pas automatiquement"
+#     trigger:
+#       - platform: time_pattern
+#         minutes: "/3"  # Toutes les 3 minutes
+#     action:
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_cuisine/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_salon/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_loann/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_meva/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_axel/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_parents/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#       - service: mqtt.publish
+#         data:
+#           topic: "zigbee2mqtt/th_terrasse/get"
+#           payload: '{"temperature": "", "humidity": ""}'
+#     mode: single
+
+# ====================================================================
+# NOTES IMPORTANTES
+# ====================================================================
+
+# 1. COMPATIBILITÉ FIRMWARE:
+#    - Xiaomi/Aqara: La plupart ignorent les commandes de reporting
+#    - Tuya: Support variable selon le modèle
+#    - Sonoff: Bon support de la reconfiguration
+#    - Si vos capteurs ignorent cette config, utilisez l'automation ci-dessus
+
+# 2. IMPACT SUR LA BATTERIE:
+#    - Configuration actuelle: Report toutes les 3 minutes = ~6 mois d'autonomie
+#    - Configuration aggressive (1 min): ~2-3 mois d'autonomie
+#    - Configuration conservatrice (10 min): ~12 mois d'autonomie
+#    - L'automation de polling a un impact plus faible (pas de reconfiguration)
+
+# 3. VÉRIFIER LES IEEE ADDRESSES:
+#    - Zigbee2MQTT Web UI → Devices → Cliquer sur un appareil
+#    - L'IEEE address est affichée en haut (format: 0xaabbccddeeff0011)
+#    - IMPORTANT: Les adresses ci-dessus sont des exemples à remplacer!
+
+# 4. MONITORING DE LA QUALITÉ:
+#    - Vérifier le LQI (Link Quality) de chaque capteur
+#    - LQI < 50 = Mauvaise connexion = Reports lents/manquants
+#    - Solution: Rapprocher le capteur d'un routeur ou ajouter un routeur
+
+# 5. LOGS ZIGBEE2MQTT:
+#    - Après application, vérifier les logs pour les messages:
+#      * "Successfully configured reporting for..."
+#      * "Device does not support reporting configuration"
+#    - Si "does not support", utiliser l'automation de polling

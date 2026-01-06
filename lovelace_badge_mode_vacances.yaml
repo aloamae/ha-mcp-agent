@@ -1,0 +1,120 @@
+# CARTE BADGE ROUGE MODE VACANCES
+# À ajouter en HAUT de votre dashboard principal (vue d'accueil)
+
+type: conditional
+conditions:
+  - entity: input_boolean.mode_vacance
+    state: "on"
+card:
+  type: markdown
+  content: |
+    ## ⚠️ MODE VACANCES ACTIF ⚠️
+
+    🏖️ **Le chauffage est en mode éco / hors-gel**
+
+    ❄️ **Consigne:** 16°C (au lieu du planning normal)
+
+    🚫 **Planning automatique BLOQUÉ**
+
+    Le chauffage ne démarrera pas automatiquement aux horaires habituels (05:45, 08:00, 17:00, 22:30).
+
+    ---
+
+    👉 **[Cliquez ici pour désactiver le mode vacances](https://ha.cartier-fred.info/vue-pieces/salon)**
+  card_mod:
+    style: |
+      ha-card {
+        background: linear-gradient(135deg, #ff0000 0%, #ff6b6b 100%) !important;
+        color: white !important;
+        border: 4px solid #ffa500 !important;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
+        animation: pulse 2s infinite;
+        font-weight: bold;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      ha-markdown {
+        color: white !important;
+      }
+      a {
+        color: #ffff00 !important;
+        text-decoration: underline !important;
+        font-size: 1.2em !important;
+      }
+
+---
+
+# ALTERNATIVE SIMPLE (si card_mod non disponible)
+
+type: conditional
+conditions:
+  - entity: input_boolean.mode_vacance
+    state: "on"
+card:
+  type: entities
+  title: ⚠️ MODE VACANCES ACTIF ⚠️
+  entities:
+    - entity: input_boolean.mode_vacance
+      name: Mode Vacances
+      icon: mdi:palm-tree
+    - type: section
+      label: "ATTENTION: Planning chauffage BLOQUÉ"
+    - type: button
+      name: Désactiver le mode vacances
+      icon: mdi:home-thermometer
+      tap_action:
+        action: navigate
+        navigation_path: /vue-pieces/salon
+
+---
+
+# CARTE COMPACTE POUR AUTRES VUES
+
+type: conditional
+conditions:
+  - entity: input_boolean.mode_vacance
+    state: "on"
+card:
+  type: glance
+  title: ⚠️ MODE VACANCES ACTIF
+  entities:
+    - entity: input_boolean.mode_vacance
+      name: Vacances
+  show_name: true
+  show_state: true
+  state_color: true
+
+---
+
+# INSTRUCTIONS D'INSTALLATION
+
+## Méthode 1: Via l'interface Home Assistant (RECOMMANDÉ)
+
+1. Aller sur votre dashboard principal: https://ha.cartier-fred.info
+2. Cliquer sur les 3 points en haut à droite → "Modifier le tableau de bord"
+3. Cliquer sur "+ AJOUTER UNE CARTE" en haut
+4. Tout en bas, cliquer sur "MANUEL"
+5. Copier-coller le code YAML de la première carte ci-dessus
+6. Cliquer sur "ENREGISTRER"
+7. Déplacer la carte EN HAUT du dashboard (glisser-déposer)
+8. Cliquer sur "TERMINÉ" en haut à droite
+
+## Méthode 2: Via le fichier dashboard YAML
+
+Si vous gérez votre dashboard en mode YAML:
+
+1. Ouvrir le fichier de votre dashboard principal
+2. Dans la section `views:`, trouver votre vue d'accueil (première vue)
+3. Ajouter la carte au DÉBUT de la liste `cards:`
+4. Sauvegarder le fichier
+5. Recharger la configuration des dashboards
+
+## Note sur card_mod
+
+La première carte utilise `card_mod` pour le style rouge animé.
+
+Si vous n'avez pas `card_mod` installé:
+- Installez-le via HACS: Frontend → card-mod
+- OU utilisez l'alternative simple (2ème carte)

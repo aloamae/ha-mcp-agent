@@ -1,0 +1,365 @@
+# =====================================
+# DASHBOARD DEBUGGING MODES V2
+# =====================================
+# Vue complète Debugging - Système de chauffage 2025
+
+views:
+  - title: Debugging Modes
+    path: debugging
+    icon: mdi:bug
+    badges: []
+    cards:
+      # =====================================
+      # ORDRE DE PRIORITÉ
+      # =====================================
+      - type: markdown
+        content: |
+          # 🎯 ORDRE DE PRIORITÉ DES MODES (6 NIVEAUX)
+
+          1️⃣ **MODE VACANCES** (Priorité MAX)
+             → Force 16°C GAZ + OFF Clims
+             → Bloque tout le reste
+
+          2️⃣ **MODE HUMIDITÉ PAR PIÈCE**
+             → Boost +2°C si humidité > seuil
+             → Automatique selon capteurs
+
+          3️⃣ **MODES MANUELS PAR PIÈCE**
+             → Contrôle individuel utilisateur
+             → GAZ: MIN(Cuisine, Parents, Loann)
+             → Clims: Individuelles
+
+          4️⃣ **MODE PLANNING HORAIRE**
+             → 4 créneaux automatiques (MODEJOUR)
+             → 05:45, 08:00, 17:00, 22:30
+
+          5️⃣ **MODE CHAUFFAGE GLOBAL**
+             → Température de référence
+             → Utilisé si pièce = MODEJOUR
+
+          6️⃣ **PILOTAGE (Exécution)**
+             → Cycle toutes les 3 minutes
+             → Zone morte ±0.5°C
+
+      # =====================================
+      # 1. MODE VACANCES
+      # =====================================
+      - type: entities
+        title: 1️⃣ MODE VACANCES
+        entities:
+          - entity: input_boolean.mode_vacance
+            name: 🏖️ Mode Vacances
+            icon: mdi:beach
+
+      # =====================================
+      # 2. MODE HUMIDITÉ
+      # =====================================
+      - type: entities
+        title: 2️⃣ MODE HUMIDITÉ (Boost +2°C)
+        entities:
+          - entity: input_number.seuil_humidite_chauffage
+            name: 🎯 Seuil Global
+            icon: mdi:water-percent
+          - type: section
+            label: Boost Actifs
+          - entity: input_boolean.mode_humidite_cuisine
+            name: 🍳 Cuisine
+          - entity: input_boolean.mode_humidite_parents
+            name: 🛏️ Parents
+          - entity: input_boolean.mode_humidite_loann
+            name: 🎮 Loann
+          - entity: input_boolean.mode_humidite_salon
+            name: 🛋️ Salon
+          - entity: input_boolean.mode_humidite_axel
+            name: 🎸 Axel
+          - entity: input_boolean.mode_humidite_maeva
+            name: 👧 Maeva
+
+      # =====================================
+      # 3. MODES MANUELS PAR PIÈCE
+      # =====================================
+      - type: entities
+        title: 3️⃣ MODES MANUELS PAR PIÈCE
+        entities:
+          - type: section
+            label: Pièces GAZ
+          - entity: input_select.mode_chauffage_cuisine
+            name: 🍳 Cuisine
+          - entity: input_select.mode_chauffage_parents
+            name: 🛏️ Parents
+          - entity: input_select.mode_chauffage_loann
+            name: 🎮 Loann
+          - type: section
+            label: Pièces Climatisations
+          - entity: input_select.mode_chauffage_salon
+            name: 🛋️ Salon
+          - entity: input_select.mode_chauffage_axel
+            name: 🎸 Axel
+          - entity: input_select.mode_chauffage_maeva
+            name: 👧 Maeva
+
+      # =====================================
+      # 4. PLANNING HORAIRE
+      # =====================================
+      - type: entities
+        title: 4️⃣ MODE PLANNING HORAIRE
+        entities:
+          - entity: automation.chauffage_planning_automatique_horaire
+            name: 📅 Planning Automatique
+            secondary_info: last-triggered
+          - entity: automation.chauffage_mise_a_jour_mode_global
+            name: 🌡️ Mise à jour Mode Global
+            secondary_info: last-triggered
+          - type: section
+            label: Créneaux Horaires
+          - type: custom:hui-element
+            card_type: markdown
+            content: |
+              - **05:45** → Confort Matin (19°C)
+              - **08:00** → Éco Journée (17°C)
+              - **17:00** → Confort Soir (19°C)
+              - **22:30** → Hors-Gel Nuit (17°C)
+
+      # =====================================
+      # 5. MODE CHAUFFAGE GLOBAL
+      # =====================================
+      - type: entities
+        title: 5️⃣ MODE CHAUFFAGE GLOBAL
+        entities:
+          - entity: input_number.mode_chauffage_global
+            name: 🎛️ Température Globale (Contrôle)
+            icon: mdi:thermometer
+          - entity: sensor.mode_chauffage_global_temperature
+            name: 📊 Mode Global (Lecture)
+            icon: mdi:thermometer-lines
+
+      # =====================================
+      # 6. PILOTAGE
+      # =====================================
+      - type: entities
+        title: 6️⃣ PILOTAGE (Exécution)
+        entities:
+          - type: section
+            label: Automations Pilotage
+          - entity: automation.chauffage_pilotage_chaudiere_gaz
+            name: 🔥 Pilotage GAZ
+            secondary_info: last-triggered
+          - entity: automation.climatisation_pilotage_salon
+            name: ❄️ Pilotage Salon
+            secondary_info: last-triggered
+          - entity: automation.climatisation_pilotage_axel
+            name: ❄️ Pilotage Axel
+            secondary_info: last-triggered
+          - entity: automation.climatisation_pilotage_maeva
+            name: ❄️ Pilotage Maeva
+            secondary_info: last-triggered
+          - type: section
+            label: État Actuateurs
+          - entity: switch.thermostat
+            name: 🔥 Chaudière GAZ
+          - entity: climate.climatisation_salon
+            name: ❄️ Climatisation Salon
+          - entity: climate.climatisation_axel
+            name: ❄️ Climatisation Axel
+          - entity: climate.climatisation_maeva
+            name: ❄️ Climatisation Maeva
+
+      # =====================================
+      # TEMPÉRATURES ET HUMIDITÉ
+      # =====================================
+      - type: entities
+        title: 🌡️ TEMPÉRATURES ACTUELLES
+        entities:
+          - type: section
+            label: Pièces GAZ
+          - entity: sensor.th_cuisine_temperature
+            name: 🍳 Cuisine
+            icon: mdi:thermometer
+          - entity: sensor.th_parents_temperature
+            name: 🛏️ Parents
+            icon: mdi:thermometer
+          - entity: sensor.th_loann_temperature
+            name: 🎮 Loann
+            icon: mdi:thermometer
+          - type: section
+            label: Pièces Climatisations
+          - entity: climate.climatisation_salon
+            name: 🛋️ Salon
+            attribute: current_temperature
+          - entity: climate.climatisation_axel
+            name: 🎸 Axel
+            attribute: current_temperature
+          - entity: climate.climatisation_maeva
+            name: 👧 Maeva
+            attribute: current_temperature
+
+      - type: entities
+        title: 💧 HUMIDITÉ ACTUELLE
+        entities:
+          - entity: sensor.th_cuisine_humidity
+            name: 🍳 Cuisine
+          - entity: sensor.th_parents_humidity
+            name: 🛏️ Parents
+          - entity: sensor.th_loann_humidity
+            name: 🎮 Loann
+          - entity: sensor.th_salon_humidity
+            name: 🛋️ Salon
+          - entity: sensor.th_axel_humidity
+            name: 🎸 Axel
+          - entity: sensor.th_maeva_humidity
+            name: 👧 Maeva
+
+      # =====================================
+      # AUTOMATIONS HUMIDITÉ
+      # =====================================
+      - type: entities
+        title: 💧 AUTOMATIONS HUMIDITÉ (12)
+        entities:
+          - type: section
+            label: Cuisine
+          - entity: automation.humidite_seuil_cuisine_on
+            name: Humidité > Seuil - Cuisine - On
+            secondary_info: last-triggered
+          - entity: automation.humidite_seuil_cuisine_off
+            name: Humidité < Seuil - Cuisine - Off
+            secondary_info: last-triggered
+          - type: section
+            label: Parents
+          - entity: automation.humidite_seuil_parents_on
+            name: Humidité > Seuil - Parents - On
+            secondary_info: last-triggered
+          - entity: automation.humidite_seuil_parents_off
+            name: Humidité < Seuil - Parents - Off
+            secondary_info: last-triggered
+          - type: section
+            label: Loann
+          - entity: automation.humidite_seuil_loann_on
+            name: Humidité > Seuil - Loann - On
+            secondary_info: last-triggered
+          - entity: automation.humidite_seuil_loann_off
+            name: Humidité < Seuil - Loann - Off
+            secondary_info: last-triggered
+          - type: section
+            label: Salon
+          - entity: automation.humidite_seuil_salon_on
+            name: Humidité > Seuil - Salon - On
+            secondary_info: last-triggered
+          - entity: automation.humidite_seuil_salon_off
+            name: Humidité < Seuil - Salon - Off
+            secondary_info: last-triggered
+          - type: section
+            label: Axel
+          - entity: automation.humidite_seuil_axel_on
+            name: Humidité > Seuil - Axel - On
+            secondary_info: last-triggered
+          - entity: automation.humidite_seuil_axel_off
+            name: Humidité < Seuil - Axel - Off
+            secondary_info: last-triggered
+          - type: section
+            label: Maeva
+          - entity: automation.humidite_seuil_maeva_on
+            name: Humidité > Seuil - Maeva - On
+            secondary_info: last-triggered
+          - entity: automation.humidite_seuil_maeva_off
+            name: Humidité < Seuil - Maeva - Off
+            secondary_info: last-triggered
+
+      # =====================================
+      # BROADLINK REMOTES
+      # =====================================
+      - type: markdown
+        content: |
+          # 📡 CLIMATISATIONS BROADLINK
+
+          **Important:** Les remotes Broadlink peuvent se mettre OFF automatiquement.
+
+          **Pour les réactiver:**
+          1. Outils dev → Services
+          2. Service: `homeassistant.turn_on`
+          3. Entité: `remote.clim_salon` (ou autre)
+
+      - type: entities
+        title: 📡 REMOTES BROADLINK
+        entities:
+          - entity: remote.clim_salon
+            name: 🛋️ Remote Salon
+          - entity: remote.clim_maeva
+            name: 👧 Remote Maeva
+          - entity: remote.clim_axel
+            name: 🎸 Remote Axel
+
+      # =====================================
+      # CONTRÔLE CLIMATISATIONS
+      # =====================================
+      - type: thermostat
+        entity: climate.climatisation_salon
+        name: 🛋️ Climatisation Salon
+        features:
+          - type: climate-fan-modes
+            style: dropdown
+          - type: climate-hvac-modes
+
+      - type: thermostat
+        entity: climate.climatisation_axel
+        name: 🎸 Climatisation Axel
+        features:
+          - type: climate-fan-modes
+            style: dropdown
+          - type: climate-hvac-modes
+
+      - type: thermostat
+        entity: climate.climatisation_maeva
+        name: 👧 Climatisation Maeva
+        features:
+          - type: climate-fan-modes
+            style: dropdown
+          - type: climate-hvac-modes
+
+      # =====================================
+      # LOGS SYSTÈME
+      # =====================================
+      - type: logbook
+        entities:
+          - automation.chauffage_pilotage_chaudiere_gaz
+          - automation.climatisation_pilotage_salon
+          - automation.climatisation_pilotage_axel
+          - automation.climatisation_pilotage_maeva
+          - switch.thermostat
+          - input_boolean.mode_vacance
+          - automation.chauffage_planning_automatique_horaire
+          - automation.chauffage_mise_a_jour_mode_global
+        hours_to_show: 6
+        title: 📜 LOGS CHAUFFAGE (6h)
+
+      # =====================================
+      # STATISTIQUES
+      # =====================================
+      - type: history-graph
+        title: 📊 Historique Températures (24h)
+        entities:
+          - entity: sensor.th_cuisine_temperature
+            name: Cuisine
+          - entity: sensor.th_parents_temperature
+            name: Parents
+          - entity: sensor.th_loann_temperature
+            name: Loann
+        hours_to_show: 24
+        refresh_interval: 0
+
+      - type: history-graph
+        title: 📊 Historique Humidité (24h)
+        entities:
+          - entity: sensor.th_cuisine_humidity
+            name: Cuisine
+          - entity: sensor.th_parents_humidity
+            name: Parents
+          - entity: sensor.th_loann_humidity
+            name: Loann
+          - entity: sensor.th_salon_humidity
+            name: Salon
+          - entity: sensor.th_axel_humidity
+            name: Axel
+          - entity: sensor.th_maeva_humidity
+            name: Maeva
+        hours_to_show: 24
+        refresh_interval: 0

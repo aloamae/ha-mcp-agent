@@ -1,0 +1,57 @@
+{
+  "models": [
+    {
+      "title": "Claude – Orchestrateur / Safety / Architecte",
+      "provider": "anthropic",
+      "model": "claude-3.5-sonnet",
+      "systemMessage": {
+        "type": "file",
+        "path": ".claude/system.md"
+      }
+    },
+    {
+      "title": "Ollama – Audit & Refactor (Mistral)",
+      "provider": "ollama",
+      "model": "mistral:7b-instruct",
+      "apiBase": "http://localhost:11434",
+      "systemMessage": {
+        "type": "file",
+        "path": ".claude/system.md"
+      }
+    },
+    {
+      "title": "Ollama – UI Lovelace (LLaMA)",
+      "provider": "ollama",
+      "model": "llama3.2:3b",
+      "apiBase": "http://localhost:11434",
+      "systemMessage": {
+        "type": "file",
+        "path": ".claude/system.md"
+      }
+    },
+    {
+      "title": "Ollama – Lecture légère (Gemma)",
+      "provider": "ollama",
+      "model": "gemma2:2b",
+      "apiBase": "http://localhost:11434",
+      "systemMessage": {
+        "type": "file",
+        "path": ".claude/system.md"
+      }
+    }
+  ],
+  "context": [
+    { "type": "file", "path": ".claude/tools.md" },
+    { "type": "file", "path": ".claude/home-assistant-capabilities.md" },
+    { "type": "file", "path": ".claude/home-assistant-commands.md" },
+    { "type": "file", "path": ".claude/claude.md" }
+  ],
+  "rules": [
+    "Tu utilises UNIQUEMENT MCP Home Assistant",
+    "Inventaire réel obligatoire avant toute action",
+    "Aucune entité ou commande inventée",
+    "YAML Home Assistant valide uniquement",
+    "Les agents locaux (Ollama) sont en MODE PROPOSITION uniquement",
+    "Seuls les agents Claude peuvent valider ou exécuter"
+  ]
+}

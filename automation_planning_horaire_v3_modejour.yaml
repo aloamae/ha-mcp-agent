@@ -1,0 +1,35 @@
+alias: Chauffage - Planning Automatique Horaire
+description: Met toutes les pièces en MODEJOUR selon planning
+mode: single
+
+triggers:
+  - at: "05:45:00"
+    id: confort_matin
+    trigger: time
+  - at: "08:00:00"
+    id: eco_journee
+    trigger: time
+  - at: "17:00:00"
+    id: confort_soir
+    trigger: time
+  - at: "22:30:00"
+    id: horsgel_nuit
+    trigger: time
+
+conditions:
+  - condition: state
+    entity_id: input_boolean.mode_vacance
+    state: "off"
+
+actions:
+  - action: input_select.select_option
+    target:
+      entity_id:
+        - input_select.mode_chauffage_cuisine
+        - input_select.mode_chauffage_parents
+        - input_select.mode_chauffage_loann
+        - input_select.mode_chauffage_salon
+        - input_select.mode_chauffage_axel
+        - input_select.mode_chauffage_maeva
+    data:
+      option: "MODEJOUR"

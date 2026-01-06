@@ -1,0 +1,16 @@
+alias: Action iPhone - Désactiver Mode Vacances
+description: Répond à l'action iPhone pour désactiver le mode vacances
+trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: DESACTIVER_MODE_VACANCES
+action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.mode_vacance
+  - service: notify.mobile_app_iphone_fredo
+    data:
+      title: ✅ Mode Vacances désactivé
+      message: Le planning chauffage automatique est rétabli
+mode: single

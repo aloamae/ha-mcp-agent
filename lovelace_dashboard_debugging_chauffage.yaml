@@ -1,0 +1,521 @@
+# ========================================
+# DASHBOARD DE DEBUGGING - MODES CHAUFFAGE
+# ========================================
+#
+# Ce dashboard affiche en temps réel:
+# - État de tous les modes de chauffage
+# - Priorité active actuellement
+# - Températures et consignes
+# - Logs des automations
+# - Tests et diagnostics
+#
+# ========================================
+
+title: Debug Chauffage
+path: debug-chauffage
+icon: mdi:bug
+badges: []
+cards:
+
+  # ========================================
+  # SECTION 1: ÉTAT DES MODES (PRIORITÉ)
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 🎯 ORDRE DE PRIORITÉ ACTUEL
+
+          Les modes sont listés du plus prioritaire au moins prioritaire.
+          Le premier mode actif **prend le contrôle**.
+
+      # PRIORITÉ 1: MODE VACANCES
+      - type: conditional
+        conditions:
+          - entity: input_boolean.mode_vacance
+            state: "on"
+        card:
+          type: entities
+          title: "1️⃣ MODE VACANCES (ACTIF)"
+          state_color: true
+          entities:
+            - entity: input_boolean.mode_vacance
+              name: Mode Vacances
+              icon: mdi:palm-tree
+            - type: section
+              label: "⚠️ CONSIGNE FORCÉE: 16°C (hors-gel)"
+            - type: section
+              label: "❌ Planning horaire BLOQUÉ"
+            - type: button
+              name: Désactiver le mode vacances
+              icon: mdi:close-circle
+              tap_action:
+                action: call-service
+                service: input_boolean.turn_off
+                service_data:
+                  entity_id: input_boolean.mode_vacance
+          card_mod:
+            style: |
+              ha-card {
+                border: 3px solid red;
+                background: rgba(255,0,0,0.1);
+              }
+
+      - type: conditional
+        conditions:
+          - entity: input_boolean.mode_vacance
+            state: "off"
+        card:
+          type: entities
+          title: "1️⃣ MODE VACANCES (Inactif)"
+          entities:
+            - entity: input_boolean.mode_vacance
+              name: Mode Vacances
+              icon: mdi:palm-tree
+
+      # PRIORITÉ 2: MODES MANUELS PAR PIÈCE
+      - type: entities
+        title: "2️⃣ MODES MANUELS PAR PIÈCE"
+        state_color: true
+        entities:
+          - entity: input_select.mode_chauffage_salon
+            name: Salon
+            icon: mdi:sofa
+          - entity: input_select.mode_chauffage_cuisine
+            name: Cuisine
+            icon: mdi:silverware-fork-knife
+          - type: section
+            label: "ℹ️ Prioritaire sur planning horaire"
+
+      # PRIORITÉ 3: MODE PRÉSENCE
+      - type: entities
+        title: "3️⃣ MODE PRÉSENCE"
+        state_color: true
+        entities:
+          - entity: zone.home
+            name: Nombre de personnes
+            icon: mdi:home-account
+          - type: attribute
+            entity: zone.home
+            attribute: persons
+            name: Personnes présentes
+          - type: conditional
+            conditions:
+              - entity: zone.home
+                state: "0"
+            row:
+              type: section
+              label: "⚠️ ABSENCE DÉTECTÉE → Mode Éco"
+          - type: section
+            label: "Automation: Chauffage Auto - Présence"
+
+      # PRIORITÉ 4: PLANNING HORAIRE
+      - type: entities
+        title: "4️⃣ MODE PLANNING HORAIRE"
+        state_color: true
+        entities:
+          - entity: automation.chauffage_planning_automatique_horaire
+            name: Planning automatique
+            icon: mdi:clock-outline
+          - entity: input_boolean.mode_nuit
+            name: Mode Nuit
+            icon: mdi:weather-night
+          - type: section
+            label: "Horaires:"
+          - type: attribute
+            entity: automation.chauffage_planning_automatique_horaire
+            attribute: last_triggered
+            name: Dernier déclenchement
+          - type: section
+            label: "05:45 → 19°C (Confort matin)"
+          - type: section
+            label: "08:00 → 18.5°C (Éco journée)"
+          - type: section
+            label: "17:00 → 19°C (Confort soir)"
+          - type: section
+            label: "22:30 → 16°C (Hors-gel nuit)"
+
+      # PRIORITÉ 5: MODE CHAUFFAGE GLOBAL
+      - type: entities
+        title: "5️⃣ MODE CHAUFFAGE GLOBAL"
+        entities:
+          - entity: sensor.mode_chauffage_global
+            name: Consigne globale
+            icon: mdi:thermometer
+
+  # ========================================
+  # SECTION 2: PILOTAGE CHAUDIÈRE (EXÉCUTION)
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 🔥 PILOTAGE CHAUDIÈRE (EXÉCUTION)
+
+          Automation qui s'exécute **toutes les 3 minutes**.
+
+      - type: entities
+        title: "6️⃣ Chauffage - Pilotage Chaudière GAZ"
+        state_color: true
+        entities:
+          - entity: automation.chauffage_pilotage_chaudiere_gaz
+            name: Automation pilotage
+            icon: mdi:fire
+          - entity: switch.thermostat
+            name: Chaudière
+            icon: mdi:radiator
+          - type: attribute
+            entity: automation.chauffage_pilotage_chaudiere_gaz
+            attribute: last_triggered
+            name: Dernier cycle
+          - type: section
+            label: "Seuils: ±0.5°C (modifiés)"
+
+  # ========================================
+  # SECTION 3: TEMPÉRATURES TEMPS RÉEL
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 🌡️ TEMPÉRATURES ET CONSIGNES
+
+      - type: entities
+        title: Cuisine
+        entities:
+          - entity: sensor.th_cuisine_temperature
+            name: Température actuelle
+            icon: mdi:thermometer
+          - entity: climate.popp_wireless_thermostatic_valve_trv
+            name: Consigne TRV
+            icon: mdi:target
+          - type: custom:bar-card
+            entity: sensor.th_cuisine_temperature
+            min: 15
+            max: 25
+            severity:
+              - value: 16
+                color: blue
+              - value: 18
+                color: cyan
+              - value: 19
+                color: green
+              - value: 20
+                color: orange
+              - value: 22
+                color: red
+
+      - type: entities
+        title: Chambre Parents
+        entities:
+          - entity: sensor.th_parents_temperature
+            name: Température actuelle
+          - entity: climate.popp_wireless_thermostatic_valve_trv_2
+            name: Consigne TRV
+          - type: custom:bar-card
+            entity: sensor.th_parents_temperature
+            min: 15
+            max: 25
+            severity:
+              - value: 16
+                color: blue
+              - value: 18
+                color: cyan
+              - value: 19
+                color: green
+              - value: 20
+                color: orange
+              - value: 22
+                color: red
+
+      - type: entities
+        title: Chambre Loann
+        entities:
+          - entity: sensor.th_loann_temperature
+            name: Température actuelle
+          - entity: climate.popp_wireless_thermostatic_valve_trv_3
+            name: Consigne TRV
+          - type: custom:bar-card
+            entity: sensor.th_loann_temperature
+            min: 15
+            max: 25
+            severity:
+              - value: 16
+                color: blue
+              - value: 18
+                color: cyan
+              - value: 19
+                color: green
+              - value: 20
+                color: orange
+              - value: 22
+                color: red
+
+  # ========================================
+  # SECTION 4: CALCUL TEMPS RÉEL
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 🧮 CALCUL DE LA CONSIGNE ACTIVE
+
+          Consigne calculée selon l'ordre de priorité.
+
+      - type: entities
+        title: Calcul actuel
+        entities:
+          - type: conditional
+            conditions:
+              - entity: input_boolean.mode_vacance
+                state: "on"
+            row:
+              type: section
+              label: "🏖️ Mode Vacances → 16°C"
+          - type: conditional
+            conditions:
+              - entity: input_boolean.mode_vacance
+                state: "off"
+            row:
+              entity: sensor.mode_chauffage_global
+              name: "Consigne active"
+              icon: mdi:target
+
+      - type: markdown
+        content: |
+          ### Logique de décision:
+
+          ```
+          SI mode_vacance = ON
+            → 16°C (hors-gel)
+
+          SINON SI mode_manuel_piece défini
+            → Consigne manuelle
+
+          SINON SI présence = 0
+            → 18.5°C (Éco)
+
+          SINON SI planning_horaire actif
+            → Consigne planning
+
+          SINON
+            → sensor.mode_chauffage_global
+          ```
+
+  # ========================================
+  # SECTION 5: TESTS ET DIAGNOSTICS
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 🧪 TESTS ET DIAGNOSTICS
+
+      - type: entities
+        title: Actions rapides
+        entities:
+          - type: button
+            name: "Test: Activer Mode Vacances"
+            icon: mdi:palm-tree
+            tap_action:
+              action: call-service
+              service: input_boolean.turn_on
+              service_data:
+                entity_id: input_boolean.mode_vacance
+          - type: button
+            name: "Test: Désactiver Mode Vacances"
+            icon: mdi:home
+            tap_action:
+              action: call-service
+              service: input_boolean.turn_off
+              service_data:
+                entity_id: input_boolean.mode_vacance
+          - type: button
+            name: "Test: Forcer exécution Planning"
+            icon: mdi:play-circle
+            tap_action:
+              action: call-service
+              service: automation.trigger
+              service_data:
+                entity_id: automation.chauffage_planning_automatique_horaire
+          - type: button
+            name: "Test: Forcer exécution Chaudière"
+            icon: mdi:fire
+            tap_action:
+              action: call-service
+              service: automation.trigger
+              service_data:
+                entity_id: automation.chauffage_pilotage_chaudiere_gaz
+
+      - type: entities
+        title: État des automations
+        show_header_toggle: false
+        entities:
+          - entity: automation.chauffage_planning_automatique_horaire
+            name: Planning horaire
+          - entity: automation.chauffage_pilotage_chaudiere_gaz
+            name: Pilotage chaudière
+          - entity: automation.chauffage_allumage_general_matin
+            name: Allumage matin
+          - entity: automation.chauffage_auto_presence
+            name: Auto présence
+
+  # ========================================
+  # SECTION 6: LOGS ET HISTORIQUE
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 📜 LOGS ET HISTORIQUE
+
+      - type: logbook
+        entities:
+          - automation.chauffage_planning_automatique_horaire
+          - automation.chauffage_pilotage_chaudiere_gaz
+          - input_boolean.mode_vacance
+          - switch.thermostat
+        hours_to_show: 6
+        title: Dernières 6 heures
+
+      - type: history-graph
+        title: Températures 24h
+        hours_to_show: 24
+        entities:
+          - sensor.th_cuisine_temperature
+          - sensor.th_parents_temperature
+          - sensor.th_loann_temperature
+
+      - type: history-graph
+        title: État chaudière 24h
+        hours_to_show: 24
+        entities:
+          - switch.thermostat
+
+  # ========================================
+  # SECTION 7: SCÉNARIOS DE TEST
+  # ========================================
+
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: |
+          # 🎬 SCÉNARIOS DE TEST
+
+          Utilise ces boutons pour tester les différents scénarios.
+
+      - type: entities
+        title: "Scénario 1: Absence complète"
+        entities:
+          - type: button
+            name: "Simuler absence (zone.home = 0)"
+            icon: mdi:home-export-outline
+            tap_action:
+              action: navigate
+              navigation_path: /developer-tools/service
+          - type: section
+            label: "Résultat attendu: Salon → Éco (18.5°C)"
+
+      - type: entities
+        title: "Scénario 2: Retour de présence"
+        entities:
+          - type: button
+            name: "Simuler retour (zone.home > 0)"
+            icon: mdi:home-import-outline
+            tap_action:
+              action: navigate
+              navigation_path: /developer-tools/service
+          - type: section
+            label: "Résultat attendu: Restaurer consigne planning"
+
+      - type: entities
+        title: "Scénario 3: Mode manuel + Absence"
+        entities:
+          - type: section
+            label: "1. Définir mode manuel Salon"
+          - entity: input_select.mode_chauffage_salon
+          - type: section
+            label: "2. Simuler absence"
+          - type: section
+            label: "Question: Quel mode prioritaire?"
+
+  # ========================================
+  # SECTION 8: DOCUMENTATION
+  # ========================================
+
+  - type: markdown
+    content: |
+      # 📚 DOCUMENTATION ORDRE DE PRIORITÉ
+
+      ## Hiérarchie des modes:
+
+      ```
+      1️⃣ MODE VACANCES
+         └─> Si ON: Force 16°C, bloque TOUT
+         └─> Désactive: Planning, Modes manuels
+
+      2️⃣ MODE MANUEL PAR PIÈCE
+         └─> Override local (Salon, Cuisine)
+         └─> Prioritaire sur planning
+         └─> Affecté par mode présence
+
+      3️⃣ MODE PRÉSENCE
+         └─> Si absence (zone.home = 0)
+         └─> Action: Salon → Éco (18.5°C)
+         └─> Question: Retour automatique?
+
+      4️⃣ MODE PLANNING HORAIRE
+         └─> 4 horaires: 05:45, 08:00, 17:00, 22:30
+         └─> Bloqué si mode_vacance = ON
+         └─> Définit consignes TRV
+
+      5️⃣ MODE CHAUFFAGE GLOBAL
+         └─> sensor.mode_chauffage_global
+         └─> Consigne par défaut
+         └─> Agrège modes supérieurs
+
+      6️⃣ PILOTAGE CHAUDIÈRE
+         └─> Exécution toutes les 3 min
+         └─> Seuils: ±0.5°C (modifiés)
+         └─> Lit consigne finale
+      ```
+
+      ## Seuils température (MODIFIÉS):
+
+      - **Allume** si delta ≥ **+0.5°C**
+      - **Éteint** si delta ≤ **-0.5°C**
+      - **Zone morte**: Maintien état actuel
+
+      ## Questions à clarifier:
+
+      1. **Mode présence:**
+         - Automation de retour?
+         - Autres pièces que Salon?
+         - Conflit avec mode manuel?
+
+      2. **Mode manuel par pièce:**
+         - Priorité sur planning? (à confirmer)
+         - Restauration automatique?
+
+      3. **sensor.mode_chauffage_global:**
+         - Comment calculé?
+         - Template sensor ou helper?
+
+# ========================================
+# INSTALLATION
+# ========================================
+#
+# 1. Copier ce fichier dans /config/ui-lovelace.yaml
+#    OU
+# 2. Ajouter comme nouvelle vue dans dashboard existant
+# 3. Adapter les noms d'entités si différents
+# 4. Installer card-mod (HACS) pour les styles (optionnel)
+# 5. Installer bar-card (HACS) pour les graphes (optionnel)
+#
+# ========================================

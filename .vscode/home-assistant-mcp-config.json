@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "home-assistant": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-home-assistant"
+      ],
+      "env": {
+        "HA_URL": "http://192.168.0.166:8123",
+        "HA_TOKEN": "<VOTRE_TOKEN_LONGUE_DUREE>"
+      }
+    }
+  }
+}

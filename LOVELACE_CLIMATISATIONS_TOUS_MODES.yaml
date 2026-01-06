@@ -1,0 +1,467 @@
+# CARTES LOVELACE - CLIMATISATIONS
+# Tous les modes disponibles pour tes 3 climatisations Broadlink/SmartIR
+
+# ========================================
+# MODES DISPONIBLES (identiques pour les 3 clims)
+# ========================================
+
+# HVAC MODES (modes de fonctionnement):
+#   - off         : Éteint
+#   - auto        : Automatique (chaud/froid selon besoin)
+#   - cool        : Refroidissement (climatisation)
+#   - heat        : Chauffage
+#   - dry         : Déshumidification
+#   - fan_only    : Ventilation seule (sans chaud/froid)
+
+# FAN MODES (vitesses ventilateur):
+#   - auto        : Automatique
+#   - quiet       : Silencieux
+#   - low         : Faible
+#   - normal      : Normal
+#   - high        : Élevé
+#   - highest     : Maximum
+
+# TEMPÉRATURES:
+#   - Min: 16°C
+#   - Max: 31°C
+
+# ========================================
+# EXEMPLE 1: CARTE COMPLÈTE AVEC TOUS LES MODES
+# ========================================
+
+type: tile
+entity: climate.climatisation_axel
+name: Climatisation Axel
+features:
+  - type: climate-hvac-modes
+    hvac_modes:
+      - off
+      - auto
+      - cool
+      - heat
+      - dry
+      - fan_only
+    style: icons  # Affichage en icônes cliquables
+  - type: climate-fan-modes
+    fan_modes:
+      - auto
+      - quiet
+      - low
+      - normal
+      - high
+      - highest
+    style: dropdown  # Affichage en menu déroulant
+
+---
+
+# ========================================
+# EXEMPLE 2: CARTE SIMPLIFIÉE (modes principaux)
+# ========================================
+
+type: tile
+entity: climate.climatisation_salon
+name: Climatisation Salon
+features:
+  - type: climate-hvac-modes
+    hvac_modes:
+      - off
+      - heat      # Chauffage
+      - cool      # Climatisation
+    style: icons
+  - type: climate-fan-modes
+    fan_modes:
+      - auto
+      - low
+      - normal
+      - high
+    style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 3: CARTE AVEC DROPDOWN POUR HVAC
+# ========================================
+
+type: tile
+entity: climate.climatisation_maeva
+name: Climatisation Maeva
+features:
+  - type: climate-hvac-modes
+    hvac_modes:
+      - off
+      - auto
+      - cool
+      - heat
+      - dry
+      - fan_only
+    style: dropdown  # Menu déroulant au lieu d'icônes
+  - type: climate-fan-modes
+    style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 4: CARTE VERTICALE AVEC ENTITÉS
+# ========================================
+
+type: vertical-stack
+cards:
+  - type: tile
+    entity: climate.climatisation_axel
+    name: Climatisation Axel
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - off
+          - auto
+          - cool
+          - heat
+          - dry
+          - fan_only
+        style: icons
+      - type: climate-fan-modes
+        fan_modes:
+          - auto
+          - quiet
+          - low
+          - normal
+          - high
+          - highest
+        style: dropdown
+
+  # Entités supplémentaires
+  - type: entities
+    entities:
+      - entity: sensor.clim_axel_temperature
+        name: Température actuelle
+      - entity: sensor.clim_axel_target_temperature
+        name: Consigne
+      - entity: remote.clim_axel
+        name: Remote Broadlink
+
+---
+
+# ========================================
+# EXEMPLE 5: CARTE THERMOSTAT CLASSIQUE
+# ========================================
+
+type: thermostat
+entity: climate.climatisation_salon
+features:
+  - type: climate-hvac-modes
+    hvac_modes:
+      - off
+      - heat
+      - cool
+      - auto
+  - type: climate-fan-modes
+    style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 6: CARTE AVEC ICÔNES PERSONNALISÉES
+# ========================================
+
+type: tile
+entity: climate.climatisation_axel
+name: Clim Axel
+icon: mdi:air-conditioner
+features:
+  - type: climate-hvac-modes
+    hvac_modes:
+      - name: Éteint
+        value: off
+        icon: mdi:power-off
+      - name: Chauffage
+        value: heat
+        icon: mdi:fire
+      - name: Climatisation
+        value: cool
+        icon: mdi:snowflake
+      - name: Auto
+        value: auto
+        icon: mdi:thermometer-auto
+      - name: Ventilation
+        value: fan_only
+        icon: mdi:fan
+      - name: Déshumidification
+        value: dry
+        icon: mdi:water-percent
+    style: icons
+  - type: climate-fan-modes
+    style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 7: GRILLE AVEC LES 3 CLIMATISATIONS
+# ========================================
+
+type: grid
+columns: 3
+square: false
+cards:
+  # SALON
+  - type: tile
+    entity: climate.climatisation_salon
+    name: Salon
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - off
+          - heat
+          - cool
+        style: icons
+      - type: climate-fan-modes
+        fan_modes:
+          - auto
+          - low
+          - normal
+          - high
+        style: dropdown
+
+  # MAEVA
+  - type: tile
+    entity: climate.climatisation_maeva
+    name: Maeva
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - off
+          - heat
+          - cool
+        style: icons
+      - type: climate-fan-modes
+        fan_modes:
+          - auto
+          - low
+          - normal
+          - high
+        style: dropdown
+
+  # AXEL
+  - type: tile
+    entity: climate.climatisation_axel
+    name: Axel
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - off
+          - heat
+          - cool
+        style: icons
+      - type: climate-fan-modes
+        fan_modes:
+          - auto
+          - low
+          - normal
+          - high
+        style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 8: CARTE COMPLÈTE AVEC CONTRÔLES AVANCÉS
+# ========================================
+
+type: vertical-stack
+cards:
+  - type: tile
+    entity: climate.climatisation_axel
+    name: Climatisation Axel
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - off
+          - auto
+          - cool
+          - heat
+          - dry
+          - fan_only
+        style: icons
+
+  - type: horizontal-stack
+    cards:
+      - type: button
+        entity: climate.climatisation_axel
+        name: -1°C
+        icon: mdi:minus
+        tap_action:
+          action: call-service
+          service: climate.set_temperature
+          service_data:
+            entity_id: climate.climatisation_axel
+            temperature: "{{ state_attr('climate.climatisation_axel', 'temperature') | float - 1 }}"
+
+      - type: entity
+        entity: climate.climatisation_axel
+        attribute: temperature
+        name: Consigne
+
+      - type: button
+        entity: climate.climatisation_axel
+        name: +1°C
+        icon: mdi:plus
+        tap_action:
+          action: call-service
+          service: climate.set_temperature
+          service_data:
+            entity_id: climate.climatisation_axel
+            temperature: "{{ state_attr('climate.climatisation_axel', 'temperature') | float + 1 }}"
+
+  - type: tile
+    entity: climate.climatisation_axel
+    features:
+      - type: climate-fan-modes
+        fan_modes:
+          - auto
+          - quiet
+          - low
+          - normal
+          - high
+          - highest
+        style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 9: CARTE CONDITIONNELLE
+# (affiche seulement si la clim est allumée)
+# ========================================
+
+type: conditional
+conditions:
+  - entity: climate.climatisation_axel
+    state_not: "off"
+card:
+  type: tile
+  entity: climate.climatisation_axel
+  name: Climatisation Axel (active)
+  features:
+    - type: climate-hvac-modes
+      hvac_modes:
+        - off
+        - auto
+        - cool
+        - heat
+        - dry
+        - fan_only
+      style: icons
+    - type: climate-fan-modes
+      style: dropdown
+
+---
+
+# ========================================
+# EXEMPLE 10: CARTE AVEC STATUT DÉTAILLÉ
+# ========================================
+
+type: vertical-stack
+cards:
+  - type: tile
+    entity: climate.climatisation_salon
+    name: Climatisation Salon
+    features:
+      - type: climate-hvac-modes
+        hvac_modes:
+          - off
+          - auto
+          - cool
+          - heat
+          - dry
+          - fan_only
+        style: icons
+      - type: climate-fan-modes
+        fan_modes:
+          - auto
+          - quiet
+          - low
+          - normal
+          - high
+          - highest
+        style: dropdown
+
+  - type: entities
+    title: Statut détaillé
+    show_header_toggle: false
+    entities:
+      - entity: climate.climatisation_salon
+        name: Mode
+        icon: mdi:thermostat
+      - entity: sensor.th_salon_temperature
+        name: Température mesurée
+        icon: mdi:thermometer
+      - type: attribute
+        entity: climate.climatisation_salon
+        attribute: temperature
+        name: Consigne
+        icon: mdi:target
+      - type: attribute
+        entity: climate.climatisation_salon
+        attribute: fan_mode
+        name: Vitesse ventilateur
+        icon: mdi:fan
+      - entity: remote.clim_salon
+        name: Remote Broadlink
+        icon: mdi:remote
+
+---
+
+# ========================================
+# LÉGENDE DES OPTIONS
+# ========================================
+
+# style: icons
+#   - Affiche les modes sous forme d'icônes cliquables
+#   - Plus visuel et rapide
+#   - Prend plus de place
+
+# style: dropdown
+#   - Affiche un menu déroulant
+#   - Plus compact
+#   - Moins visuel
+
+# HVAC MODES:
+#   off       → Climatisation éteinte
+#   auto      → Mode automatique (chaud ou froid selon besoin)
+#   cool      → Refroidissement (climatisation)
+#   heat      → Chauffage
+#   dry       → Déshumidification
+#   fan_only  → Ventilation seule
+
+# FAN MODES:
+#   auto      → Vitesse automatique
+#   quiet     → Silencieux (le plus bas)
+#   low       → Faible
+#   normal    → Normal
+#   high      → Élevé
+#   highest   → Maximum
+
+# ========================================
+# INSTRUCTIONS D'INSTALLATION
+# ========================================
+
+# 1. Choisir un exemple ci-dessus
+# 2. Copier le code YAML
+# 3. Aller sur le dashboard HA
+# 4. Mode édition → + Ajouter une carte
+# 5. Manuel (tout en bas)
+# 6. Coller le code
+# 7. Sauvegarder
+
+# ========================================
+# PERSONNALISATION
+# ========================================
+
+# Pour modifier les modes affichés:
+# - Supprimer les lignes des modes non souhaités
+# - Exemple: pour n'avoir que off/heat/cool, garder uniquement ces 3 lignes
+
+# Pour changer l'entité:
+# - Remplacer climate.climatisation_axel par:
+#   - climate.climatisation_salon
+#   - climate.climatisation_maeva
+
+# Pour changer le style:
+# - icons → dropdown (ou inversement)

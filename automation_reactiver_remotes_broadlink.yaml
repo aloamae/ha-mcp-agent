@@ -1,0 +1,49 @@
+id: reactiver_remotes_broadlink
+alias: Reactiver remotes Broadlink si OFF
+mode: parallel
+max: 3
+
+trigger:
+  - platform: state
+    entity_id: remote.clim_salon
+    to: "off"
+    id: salon
+
+  - platform: state
+    entity_id: remote.clim_maeva
+    to: "off"
+    id: maeva
+
+  - platform: state
+    entity_id: remote.clim_axel
+    to: "off"
+    id: axel
+
+action:
+  - delay:
+      seconds: 5
+
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: salon
+        sequence:
+          - service: homeassistant.turn_on
+            target:
+              entity_id: remote.clim_salon
+
+      - conditions:
+          - condition: trigger
+            id: maeva
+        sequence:
+          - service: homeassistant.turn_on
+            target:
+              entity_id: remote.clim_maeva
+
+      - conditions:
+          - condition: trigger
+            id: axel
+        sequence:
+          - service: homeassistant.turn_on
+            target:
+              entity_id: remote.clim_axel

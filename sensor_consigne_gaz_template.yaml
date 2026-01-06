@@ -1,0 +1,40 @@
+# =====================================
+# SENSOR TEMPLATE: Consigne GAZ Actuelle
+# =====================================
+# Ce sensor affiche la consigne finale calculée par l'automation pilotage GAZ
+# Inclut le boost humidité (+2°C si mode_humidite_cuisine = ON)
+
+template:
+  - sensor:
+      - name: "Consigne GAZ Actuelle"
+        unique_id: consigne_gaz_actuelle
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >
+          {% if is_state('input_boolean.mode_vacance','on') %}
+            16
+          {% else %}
+            {% set mode_cuisine = states('input_select.mode_chauffage_cuisine') %}
+            {% set mode_parents = states('input_select.mode_chauffage_parents') %}
+            {% set mode_loann = states('input_select.mode_chauffage_loann') %}
+            {% set t_cuisine = mode_cuisine | regex_findall_index('\d+\.?\d*') | float(19) %}
+            {% set t_parents = mode_parents | regex_findall_index('\d+\.?\d*') | float(19) %}
+            {% set t_loann = mode_loann | regex_findall_index('\d+\.?\d*') | float(19) %}
+            {% set actifs = [] %}
+            {% if mode_cuisine not in ['STOP', 'MODEJOUR'] %}
+              {% set actifs = actifs + [t_cuisine] %}
+            {% endif %}
+            {% if mode_parents not in ['STOP', 'MODEJOUR'] %}
+              {% set actifs = actifs + [t_parents] %}
+            {% endif %}
+            {% if mode_loann not in ['STOP', 'MODEJOUR'] %}
+              {% set actifs = actifs + [t_loann] %}
+            {% endif %}
+            {% if actifs | length > 0 %}
+              {% set consigne_base = actifs | min %}
+            {% else %}
+              {% set consigne_base = states('sensor.mode_chauffage_global') | regex_findall_index('\d+\.?\d*') | float(18.5) %}
+            {% endif %}
+            {% set boost = 2 if is_state('input_boolean.mode_humidite_cuisine', 'on') else 0 %}
+            {{ (consigne_base | float + boost) | round(1) }}
+          {% endif %}

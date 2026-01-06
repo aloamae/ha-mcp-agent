@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(mcp list:*)",
+      "Bash(cat:*)",
+      "Bash(mcp list-tools:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(ConvertFrom-Json)",
+      "Bash(Where-Object { $_entity_id -like \"automation.*\" })",
+      "Bash(Select-Object entity_id, @{Name='state')",
+      "Bash(Expression={$_state}}, @{Name='last_triggered')",
+      "Bash(Expression={$_attributes.last_triggered}})",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell.exe -Command \"$env:HA_TOKEN = ''jZT5-o3QZOXj00id5Z8_QOU1topknUozOWIL6QL-pl4''; & ''C:\\\\DATAS\\\\AI\\\\Projets\\\\Perso\\\\Domotique\\\\analyser_modes_chauffage.ps1''\")",
+      "Bash(timeout 30 npx @modelcontextprotocol/cli list-tools:*)",
+      "Bash($env:HA_TOKEN = 'jZT5-o3QZOXj00id5Z8_QOU1topknUozOWIL6QL-pl4')",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

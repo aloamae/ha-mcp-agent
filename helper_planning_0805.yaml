@@ -1,0 +1,7 @@
+# Helper pour activer/desactiver l'automation 08:05
+# A creer dans Home Assistant : Parametres -> Appareils et services -> Entrées
+
+input_boolean:
+  planning_0805_actif:
+    name: "Planning 08:05 actif"
+    icon: mdi:clock-check-outline

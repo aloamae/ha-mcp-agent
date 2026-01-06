@@ -1,0 +1,32 @@
+🔁 Méthode officielle de travail (résumé)
+🔍 Analyse
+
+MCP → inventaire
+
+compréhension réelle
+
+identification des conflits
+
+🧩 Conception
+
+helpers (logique)
+
+automations (comportement)
+
+UI (pilotage)
+
+🧪 Validation
+
+reload partiel
+
+tests d’état
+
+confirmation humaine
+
+▶️ Exécution
+
+uniquement via MCP
+
+jamais à l’aveugle
+
+jamais par shell

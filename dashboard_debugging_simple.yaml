@@ -1,0 +1,162 @@
+title: Debugging Modes Chauffage
+path: debugging-modes
+icon: mdi:bug
+badges: []
+
+cards:
+  # ========================================
+  # SECTION 1: ORDRE DE PRIORITE
+  # ========================================
+  - type: markdown
+    content: |
+      # ORDRE DE PRIORITE DES MODES
+
+      1. MODE VACANCES (Max)
+      2. MODES MANUELS PAR PIECE
+      3. MODE PRESENCE
+      4. PLANNING HORAIRE
+      5. MODE CHAUFFAGE GLOBAL
+      6. PILOTAGE CHAUDIERE
+
+  - type: entities
+    title: "1. MODE VACANCES"
+    entities:
+      - entity: input_boolean.mode_vacance
+        name: Mode Vacances
+
+  - type: entities
+    title: "2. MODES MANUELS PAR PIECE"
+    entities:
+      - entity: input_select.mode_chauffage_salon
+        name: Mode Salon
+      - entity: input_select.mode_chauffage_cuisine
+        name: Mode Cuisine
+
+  - type: entities
+    title: "3. MODE PRESENCE"
+    entities:
+      - entity: zone.home
+        name: Personnes a la maison
+      - entity: automation.mode_presence_depart
+        name: Automation depart
+      - entity: automation.mode_presence_retour
+        name: Automation retour
+
+  - type: entities
+    title: "4. PLANNING HORAIRE"
+    entities:
+      - entity: automation.chauffage_planning_matin
+        name: Planning Matin
+      - entity: automation.chauffage_planning_midi
+        name: Planning Midi
+      - entity: automation.chauffage_planning_apres_midi
+        name: Planning Apres-midi
+      - entity: automation.chauffage_planning_soir
+        name: Planning Soir
+
+  - type: entities
+    title: "5. MODE CHAUFFAGE GLOBAL"
+    entities:
+      - entity: sensor.mode_chauffage_global
+        name: Consigne globale
+
+  - type: entities
+    title: "6. PILOTAGE CHAUDIERE"
+    entities:
+      - entity: automation.chauffage_pilotage_chaudiere_gaz
+        name: Automation pilotage
+      - entity: switch.thermostat
+        name: Etat chaudiere
+
+  # ========================================
+  # SECTION 2: TEMPERATURES
+  # ========================================
+  - type: entities
+    title: TEMPERATURES ACTUELLES
+    entities:
+      - entity: sensor.th_cuisine_temperature
+        name: Cuisine
+      - entity: sensor.th_parents_temperature
+        name: Parents
+      - entity: sensor.th_loann_temperature
+        name: Loann
+
+  # ========================================
+  # SECTION 3: CLIMATISATIONS BROADLINK
+  # ========================================
+  - type: markdown
+    content: |
+      # CLIMATISATIONS BROADLINK
+
+      **IMPORTANT:** Les remotes sont OFF
+      Lance le script pour les activer:
+      ```
+      .\activer_remotes_broadlink.ps1
+      ```
+
+  - type: entities
+    title: ETAT REMOTES BROADLINK
+    entities:
+      - entity: remote.clim_salon
+        name: Remote Salon
+      - entity: remote.clim_maeva
+        name: Remote Maeva
+      - entity: remote.clim_axel
+        name: Remote Axel
+
+  - type: entities
+    title: ETAT CLIMATISATIONS
+    entities:
+      - entity: climate.climatisation_salon
+        name: Climatisation Salon
+      - entity: climate.climatisation_maeva
+        name: Climatisation Maeva
+      - entity: climate.climatisation_axel
+        name: Climatisation Axel
+
+  - type: thermostat
+    entity: climate.climatisation_salon
+    name: Climatisation Salon
+
+  - type: thermostat
+    entity: climate.climatisation_maeva
+    name: Climatisation Maeva
+
+  - type: thermostat
+    entity: climate.climatisation_axel
+    name: Climatisation Axel
+
+  # ========================================
+  # SECTION 4: TESTS RAPIDES
+  # ========================================
+  - type: markdown
+    content: |
+      # TESTS RAPIDES
+
+      **Tester automation chaudiere:**
+      Outils dev -> Services
+      Service: automation.trigger
+      Entite: automation.chauffage_pilotage_chaudiere_gaz
+
+      **Activer remotes Broadlink:**
+      Lance le script PowerShell:
+      ```powershell
+      .\activer_remotes_broadlink.ps1
+      ```
+
+      **Tester climatisation:**
+      Outils dev -> Services
+      Service: climate.turn_on
+      Entite: climate.climatisation_salon
+
+  # ========================================
+  # SECTION 5: LOGS
+  # ========================================
+  - type: logbook
+    entities:
+      - automation.chauffage_pilotage_chaudiere_gaz
+      - switch.thermostat
+      - zone.home
+      - input_boolean.mode_vacance
+    hours_to_show: 6
+    title: LOGS CHAUFFAGE (6h)

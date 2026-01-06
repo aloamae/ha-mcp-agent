@@ -1,0 +1,51 @@
+alias: Chauffage - Pilotage Chaudiere GAZ
+description: Pilotage automatique chaudiere selon temperatures (seuils ±0.5C) + Mode Manuel prioritaire (3 pieces GAZ)
+mode: single
+
+triggers:
+  - minutes: /3
+    trigger: time_pattern
+
+conditions: []
+
+actions:
+  - variables:
+      consigne: |
+        {% if is_state('input_boolean.mode_vacance','on') %}16
+        {% else %}
+          {% set mode_cuisine = states('input_select.mode_chauffage_cuisine') %}
+          {% set mode_parents = states('input_select.mode_chauffage_parents') %}
+          {% set mode_loann = states('input_select.mode_chauffage_loann') %}
+          {% set t_cuisine = mode_cuisine | regex_findall_index('\d+\.?\d*') | float(19) %}
+          {% set t_parents = mode_parents | regex_findall_index('\d+\.?\d*') | float(19) %}
+          {% set t_loann = mode_loann | regex_findall_index('\d+\.?\d*') | float(19) %}
+          {% set actifs = [] %}
+          {% if mode_cuisine not in ['STOP', 'MODEJOUR'] %}{% set actifs = actifs + [t_cuisine] %}{% endif %}
+          {% if mode_parents not in ['STOP', 'MODEJOUR'] %}{% set actifs = actifs + [t_parents] %}{% endif %}
+          {% if mode_loann not in ['STOP', 'MODEJOUR'] %}{% set actifs = actifs + [t_loann] %}{% endif %}
+          {% if actifs | length > 0 %}{{ actifs | min }}
+          {% else %}{{ states('sensor.mode_chauffage_global') | regex_findall_index('\d+\.?\d*') | float(18.5) }}
+          {% endif %}
+        {% endif %}
+      t_cuisine: "{{ states('sensor.th_cuisine_temperature') | float(20) }}"
+      t_parents: "{{ states('sensor.th_parents_temperature') | float(20) }}"
+      t_loann: "{{ states('sensor.th_loann_temperature') | float(20) }}"
+      need_heat: "{{ (consigne - t_cuisine) >= 0.5 or (consigne - t_parents) >= 0.5 or (consigne - t_loann) >= 0.5 }}"
+      etat_actuel: "{{ states('switch.thermostat') }}"
+
+  - choose:
+      - conditions:
+          - "{{ need_heat }}"
+          - "{{ etat_actuel != 'on' }}"
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.thermostat
+
+      - conditions:
+          - "{{ not need_heat }}"
+          - "{{ etat_actuel != 'off' }}"
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.thermostat

@@ -1,0 +1,77 @@
+# ==========================================
+# .gitignore pour projet Domotique Home Assistant
+# Projet: Configuration chauffage intelligent + agents MCP
+# ==========================================
+
+# --- Secrets et Environment ---
+.env
+*.env
+.env.local
+.env.*.local
+secrets.yaml
+!secrets_template.yaml  # Garder le template
+
+# --- Continue / Claude caches ---
+.continue/cache/
+.continue/logs/
+.claude/cache/
+.claude/temp/
+
+# --- Python (env local) ---
+env/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# --- IDE ---
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+.history/
+
+# --- Ollama local data ---
+.ollama/
+
+# --- Node.js ---
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- Home Assistant specific ---
+.homeassistant/
+*.db
+*.db-shm
+*.db-wal
+home-assistant.log
+home-assistant_v2.db
+OZW_Log.txt*
+
+# --- Zigbee2MQTT ---
+zigbee2mqtt_backup/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Temporary files ---
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*.backup
+
+# --- Snyk Security Extension ---
+.github/instructions/snyk_rules.instructions.md
+
+# --- Subprojects ---
+home-assistant-vibecode-agent/
+env/
+OLD_DOC/

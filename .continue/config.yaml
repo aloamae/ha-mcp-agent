@@ -1,0 +1,138 @@
+name: Domotique Ollama CPU
+version: 1.0.0
+schema: v1
+
+# =========================================
+# AUTOCOMPLÉTION RAPIDE (LOCAL)
+# =========================================
+autocomplete:
+  providers:
+    - provider: ollama
+      model: llama3.2:3b
+      systemMessage: |
+        Réponds en français.
+        Complétion rapide, courte et technique.
+        Code concis, commentaires en français si utile.
+
+# =========================================
+# MODÈLES
+# =========================================
+models:
+  # ⚡ Modèle rapide (CPU-friendly)
+  - name: Local Fast
+    provider: ollama
+    model: llama3.2:3b
+    temperature: 0.3
+    systemMessage: |
+      Réponds UNIQUEMENT en français.
+      Réponses courtes et techniques.
+      Indique clairement si une action MCP est nécessaire.
+
+  # 💡 Brainstorm léger
+  - name: Local Brainstorm
+    provider: ollama
+    model: gemma2:2b
+    temperature: 0.4
+    systemMessage: |
+      Réponds UNIQUEMENT en français.
+      Génère des idées, alternatives et options.
+      Format : listes courtes et actionnables.
+
+  # 🧠 Orchestrateur domotique principal
+  - name: Local Orchestrator
+    provider: ollama
+    model: mistral:7b-instruct
+    temperature: 0.2
+    systemMessage: |
+      Tu réponds UNIQUEMENT en français.
+      Tu es architecte domotique Home Assistant + Docker + réseau.
+
+      Tu structures TOUJOURS tes réponses ainsi :
+      1) Architecture proposée
+      2) Fichiers complets (docker-compose, YAML Home Assistant si demandé)
+      3) Explications brèves par bloc
+
+      Contraintes :
+      - YAML strictement valide (espaces, pas de tabulation)
+      - docker-compose version >= 3.7
+      - Séparer réseau frontend / backend
+      - Réponses concises, pas de blabla
+
+  # 👁 Vision (cloud, usage ponctuel)
+  - name: Vision
+    provider: google
+    model: gemini-2.0-flash
+    apiKey: ${GOOGLE_API_KEY}
+    systemMessage: |
+      Analyse des images uniquement.
+      Réponds en français.
+      Va droit au but.
+
+# =========================================
+# AGENTS
+# =========================================
+agents:
+  # 🏠🔧 Agent domotique principal
+  - name: infra-domotique
+    model: Local Orchestrator
+    description: >
+      Agent expert Home Assistant, Docker, MQTT, Zigbee2MQTT, ESPHome
+      et conception d'un homelab domotique complet.
+    instructions: |
+      Tu es un architecte d'infrastructure domotique complet.
+
+      Contexte :
+      - Home Assistant en conteneur Docker
+      - Linux, docker-compose
+      - Services : MQTT, Zigbee2MQTT, ESPHome, InfluxDB, Grafana
+
+      Tâches :
+      - Concevoir et expliquer l'architecture globale
+      - Proposer des docker-compose complets et cohérents
+      - Générer du YAML Home Assistant valide (intégrations, automations)
+      - Analyser et améliorer des stacks existantes
+
+      Style :
+      - Commencer par "Architecture proposée"
+      - Puis fournir les fichiers complets
+      - Puis expliquer brièvement chaque bloc
+
+      Contraintes :
+      - YAML strictement valide
+      - docker-compose >= 3.7
+      - Séparer frontend / backend
+      - Indiquer si redémarrage nécessaire
+
+  # ⚡ Agent rapide
+  - name: speed
+    model: Local Fast
+    goal: >
+      Complétion rapide, corrections courtes,
+      snippets et réponses efficaces.
+
+  # 💡 Brainstorm
+  - name: brainstorm
+    model: Local Brainstorm
+    goal: >
+      Générer des idées, options et alternatives
+      pour architectures ou automations.
+
+  # 👁 Vision
+  - name: vision
+    model: Vision
+    goal: >
+      Analyser des images (screenshots Home Assistant,
+      schémas réseau, photos de câblage).
+
+# =========================================
+# MCP HOME ASSISTANT
+# =========================================
+mcpServers:
+  - name: home-assistant
+    command: npx
+    args:
+      - -y
+      - "@coolver/home-assistant-mcp@latest"
+    env:
+      HA_AGENT_URL=http://192.168.0.166:8099
+      HA_AGENT_KEY=jZT5-o3QZOXj00id5Z8_QOU1topknUozOWIL6QL-pl4

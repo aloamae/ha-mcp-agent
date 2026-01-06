@@ -1,0 +1,139 @@
+{
+  "version": "1.0",
+  "description": "Règles de routage des agents Claude Home Assistant (MCP)",
+  "default_language": "fr",
+  "global_rules": {
+    "no_hallucination": true,
+    "mcp_only": true,
+    "yaml_only": true,
+    "forbid_pseudo_code": true,
+    "forbid_invented_commands": true,
+    "require_real_inventory": true
+  },
+  "workflow_order": [
+    "auditor",
+    "architect",
+    "refactor",
+    "lovelace",
+    "safety"
+  ],
+  "agents": {
+    "orchestrator": {
+      "role": "Orchestrateur",
+      "description": "Route la demande utilisateur vers l’agent approprié et impose l’ordre de travail.",
+      "priority": 0,
+      "can_execute_actions": false
+    },
+    "auditor": {
+      "role": "Auditeur Home Assistant",
+      "description": "Analyse factuelle de l’existant via MCP. Aucune proposition de modification.",
+      "priority": 1,
+      "can_execute_actions": false,
+      "keywords": [
+        "audit",
+        "analyser",
+        "analyse",
+        "inventaire",
+        "comprendre",
+        "existant",
+        "fonctionnement",
+        "chauffage",
+        "priorités",
+        "conflit",
+        "déclencheur",
+        "condition"
+      ],
+      "entry_conditions": {
+        "requires_inventory": true
+      }
+    },
+    "architect": {
+      "role": "Architecte Domotique",
+      "description": "Conçoit des systèmes complets (helpers → automations → UI) à partir d’un audit validé.",
+      "priority": 2,
+      "can_execute_actions": false,
+      "keywords": [
+        "créer",
+        "concevoir",
+        "nouveau",
+        "système",
+        "mode",
+        "logique",
+        "architecture",
+        "scenario",
+        "scénario",
+        "chauffage intelligent",
+        "gestion"
+      ],
+      "entry_conditions": {
+        "requires_audit": true
+      }
+    },
+    "refactor": {
+      "role": "Refactoriseur de Logique",
+      "description": "Améliore et simplifie l’existant sans changer le comportement fonctionnel.",
+      "priority": 3,
+      "can_execute_actions": false,
+      "keywords": [
+        "refactor",
+        "refactoriser",
+        "simplifier",
+        "fusionner",
+        "optimiser",
+        "améliorer",
+        "nettoyer",
+        "doublon"
+      ],
+      "entry_conditions": {
+        "requires_audit": true
+      }
+    },
+    "lovelace": {
+      "role": "Assistant UI Lovelace",
+      "description": "Crée ou améliore les dashboards, vues et cartes Lovelace.",
+      "priority": 4,
+      "can_execute_actions": false,
+      "keywords": [
+        "dashboard",
+        "lovelace",
+        "interface",
+        "ui",
+        "vue",
+        "carte",
+        "affichage",
+        "theme",
+        "thème"
+      ],
+      "entry_conditions": {
+        "requires_audit": true
+      }
+    },
+    "safety": {
+      "role": "Agent Sécurité & Traçabilité",
+      "description": "Valide, applique ou refuse les actions selon leur traçabilité et sécurité.",
+      "priority": 5,
+      "can_execute_actions": true,
+      "keywords": [
+        "appliquer",
+        "exécuter",
+        "modifier",
+        "supprimer",
+        "redémarrer",
+        "reload",
+        "rollback",
+        "valider",
+        "installer",
+        "hacs"
+      ],
+      "entry_conditions": {
+        "requires_audit": true,
+        "requires_confirmation": true
+      }
+    }
+  },
+  "fallback_behavior": {
+    "if_no_keyword_match": "auditor",
+    "if_action_requested_without_audit": "refuse_and_require_audit",
+    "if_command_not_in_catalog": "refuse"
+  }
+}

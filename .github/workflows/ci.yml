@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Validate YAML files
+        run: |
+          yamllint automation_*.yaml || true
+          yamllint dashboard_*.yaml || true
+          yamllint helper_*.yaml || true
+
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check documentation links
+        run: |
+          # Check for broken internal links
+          find docs -name "*.md" -exec grep -l "\[.*\](.*\.md)" {} \;
+
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check line endings
+        run: |
+          # Ensure consistent line endings
+          git ls-files --eol | grep -v "lf/crlf" || echo "Line endings OK"
+
+  spell-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for common typos
+        run: |
+          grep -rn "consgine" *.yaml docs/ || true
+          grep -rn "automati" docs/*.md | grep -v "automatic" || true

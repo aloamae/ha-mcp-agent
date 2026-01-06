@@ -1,0 +1,44 @@
+alias: Alerte - Mode Vacances actif (22h)
+description: Alerte à 22h si le mode vacances est toujours actif pour éviter blocage chauffage demain matin
+trigger:
+  - platform: time
+    at: "22:00:00"
+condition:
+  - condition: state
+    entity_id: input_boolean.mode_vacance
+    state: "on"
+action:
+  - service: persistent_notification.create
+    data:
+      title: ⚠️ Mode Vacances toujours actif
+      message: |
+        Le mode vacances est encore activé.
+        Le planning chauffage de demain matin sera bloqué!
+
+        Désactivez-le si vous n'êtes pas en vacances:
+        https://ha.cartier-fred.info/vue-pieces/salon
+  - service: telegram_bot.send_message
+    data:
+      chat_id: 8486475897
+      message: |
+        ⚠️ RAPPEL: Mode Vacances toujours actif
+
+        🏖️ Mode Vacances ACTIVÉ
+
+        Demain matin, le chauffage ne démarrera PAS automatiquement.
+        Si ce n'était pas prévu, désactivez le mode vacances maintenant.
+
+        👉 Aller sur le dashboard pour le désactiver:
+        https://ha.cartier-fred.info/vue-pieces/salon
+  - service: notify.mobile_app_iphone_fredo
+    data:
+      title: ⚠️ Mode Vacances actif
+      message: |
+        Le mode vacances est toujours activé.
+        Le chauffage ne démarrera pas demain matin!
+      data:
+        url: https://ha.cartier-fred.info/vue-pieces/salon
+        actions:
+          - action: DESACTIVER_MODE_VACANCES
+            title: Désactiver maintenant
+mode: single

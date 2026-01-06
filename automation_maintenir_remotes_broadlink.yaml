@@ -1,0 +1,26 @@
+id: maintenir_remotes_broadlink
+alias: Maintenir remotes Broadlink actifs
+description: Reactive automatiquement les remotes Broadlink toutes les 30 min
+mode: restart
+
+trigger:
+  # Au demarrage de HA
+  - platform: homeassistant
+    event: start
+
+  # Toutes les 30 minutes
+  - platform: time_pattern
+    minutes: /30
+
+action:
+  # Attendre 30 secondes apres demarrage HA
+  - delay:
+      seconds: 30
+
+  # Activer tous les remotes
+  - service: homeassistant.turn_on
+    target:
+      entity_id:
+        - remote.clim_salon
+        - remote.clim_maeva
+        - remote.clim_axel

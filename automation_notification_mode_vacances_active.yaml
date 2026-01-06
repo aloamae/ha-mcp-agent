@@ -1,0 +1,29 @@
+alias: Notification - Mode Vacances ACTIVÉ
+description: Envoie notification Telegram et iPhone quand mode vacances est activé
+trigger:
+  - platform: state
+    entity_id: input_boolean.mode_vacance
+    to: "on"
+action:
+  - service: telegram_bot.send_message
+    data:
+      chat_id: 8486475897
+      message: |
+        🏖️ Mode Vacances ACTIVÉ
+
+        Mode vacance basculé en mode éco / hors-gel.
+
+        Le planning chauffage automatique est maintenant bloqué.
+
+        👉 Pour le désactiver:
+        https://ha.cartier-fred.info/vue-pieces/salon
+  - service: notify.mobile_app_iphone_fredo
+    data:
+      title: 🏖️ Mode Vacances ACTIVÉ
+      message: Chauffage basculé en mode éco / hors-gel
+      data:
+        url: https://ha.cartier-fred.info/vue-pieces/salon
+        actions:
+          - action: DESACTIVER_MODE_VACANCES
+            title: Désactiver
+mode: single

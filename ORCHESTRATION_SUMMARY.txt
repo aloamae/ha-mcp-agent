@@ -1,0 +1,282 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    ORCHESTRATION COMPLÈTE - RÉSUMÉ
+═══════════════════════════════════════════════════════════════════════════════
+
+Date : 2025-12-19
+Mission : Récapitulatif automations MCP Home Assistant + Diagnostic Broadlink
+Statut : ✅ TERMINÉ
+
+═══════════════════════════════════════════════════════════════════════════════
+                        FICHIERS CRÉÉS (7 NOUVEAUX)
+═══════════════════════════════════════════════════════════════════════════════
+
+📄 DOCUMENTS MARKDOWN (5)
+───────────────────────────────────────────────────────────────────────────────
+1. RECAPITULATIF_AUTOMATIONS_CHAUFFAGE.md      (14 KB)
+   → Liste des 17 automations, timeline journalière, dépendances
+
+2. DIAGNOSTIC_BROADLINK.md                     (26 KB)
+   → Analyse problèmes climatisations, solutions étape par étape
+
+3. GUIDE_ORDRE_FONCTIONNEMENT.md               (38 KB)
+   → Explication ordre d'exécution, flux décisionnel, cas d'usage
+
+4. README_ORCHESTRATION_COMPLETE.md            (13 KB)
+   → Guide complet d'exécution de toute l'orchestration
+
+5. INDEX_ORCHESTRATION.md                      (9.6 KB)
+   → Index de navigation rapide
+
+6. QUICK_START_ORCHESTRATION.md                (5.1 KB)
+   → Réparation rapide en 15 minutes
+
+📜 SCRIPTS POWERSHELL (3)
+───────────────────────────────────────────────────────────────────────────────
+1. collect_automation_data.ps1                 (7.1 KB)
+   → Collecte toutes les données HA (automations, entités, helpers)
+
+2. analyze_automation_details.ps1              (4.9 KB)
+   → Analyse détaillée des automations (triggers, conditions, actions)
+
+3. check_broadlink_status.ps1                  (8.3 KB)
+   → Diagnostic complet des 3 climatisations Broadlink
+
+═══════════════════════════════════════════════════════════════════════════════
+                            DÉMARRAGE RAPIDE
+═══════════════════════════════════════════════════════════════════════════════
+
+Option 1 : LECTURE APPROFONDIE (2h)
+───────────────────────────────────────────────────────────────────────────────
+1. Lire README_ORCHESTRATION_COMPLETE.md
+2. Exécuter les 3 scripts PowerShell
+3. Lire les 3 documents d'analyse
+4. Suivre le plan d'action
+
+Option 2 : RÉPARATION RAPIDE (15 min)
+───────────────────────────────────────────────────────────────────────────────
+1. Lire QUICK_START_ORCHESTRATION.md
+2. Exécuter check_broadlink_status.ps1
+3. Suivre les 3 étapes de réparation
+
+═══════════════════════════════════════════════════════════════════════════════
+                        COMMANDES À EXÉCUTER
+═══════════════════════════════════════════════════════════════════════════════
+
+PowerShell (Ouvrir en Administrateur):
+
+# Définir le token HA
+$env:HA_TOKEN = "jZT5-o3QZOXj00id5Z8_QOU1topknUozOWIL6QL-pl4"
+
+# Naviguer vers le répertoire
+cd "c:\DATAS\AI\Projets\Perso\Domotique"
+
+# Option A : Collecte complète (10 min)
+.\collect_automation_data.ps1
+.\analyze_automation_details.ps1
+.\check_broadlink_status.ps1
+
+# Option B : Diagnostic rapide (2 min)
+.\check_broadlink_status.ps1
+
+═══════════════════════════════════════════════════════════════════════════════
+                    PROBLÈMES IDENTIFIÉS (À RÉPARER)
+═══════════════════════════════════════════════════════════════════════════════
+
+🔴 CRITIQUE
+───────────────────────────────────────────────────────────────────────────────
+1. Remote Broadlink désactivées
+   → remote.clim_salon : OFF
+   → remote.clim_maeva : OFF
+   → remote.clim_axel : OFF
+   IMPACT : Commandes IR bloquées, climatisations non fonctionnelles
+
+2. Network timeout Broadlink Maeva
+   → Appareil 192.168.0.136 non accessible
+   IMPACT : Intégration HA échoue, remote.clim_maeva unavailable
+
+🟡 IMPORTANT
+───────────────────────────────────────────────────────────────────────────────
+3. Possible doublon automation
+   → chauffage_appliquer_mode_chauffage_global existe 2 fois
+   IMPACT : Risque de conflits, exécutions multiples
+
+4. Horaires à vérifier
+   → Allumage général : 04:45 (trop tôt ?)
+   → Planning automatique : 05:45
+   IMPACT : Potentiel décalage avec besoins réels
+
+═══════════════════════════════════════════════════════════════════════════════
+                        SOLUTIONS FOURNIES
+═══════════════════════════════════════════════════════════════════════════════
+
+Solution #1 : Activer Remote Broadlink (2 min)
+───────────────────────────────────────────────────────────────────────────────
+Via PowerShell:
+$body = @{entity_id = @("remote.clim_salon","remote.clim_maeva","remote.clim_axel")} | ConvertTo-Json
+Invoke-RestMethod -Uri "http://192.168.0.166:8123/api/services/homeassistant/turn_on" `
+    -Headers @{"Authorization"="Bearer $env:HA_TOKEN";"Content-Type"="application/json"} `
+    -Method Post -Body $body
+
+Via Interface HA:
+Paramètres → Appareils et services → Entités → Rechercher remote.clim_* → Activer
+
+Solution #2 : Réparer Broadlink Maeva (5 min)
+───────────────────────────────────────────────────────────────────────────────
+1. Ping 192.168.0.136 → Si échec : débrancher/rebrancher appareil
+2. Attendre 30 secondes
+3. HA → Paramètres → Appareils et services → Broadlink → Recharger
+
+Solution #3 : Tester Climatisations (5 min)
+───────────────────────────────────────────────────────────────────────────────
+Pour chaque climatisation:
+1. Ouvrir HA
+2. Carte climate.climatisation_*
+3. Mode Heat, Temp 22°C
+4. Observer appareil physique
+
+═══════════════════════════════════════════════════════════════════════════════
+                        FICHIERS À CONSULTER
+═══════════════════════════════════════════════════════════════════════════════
+
+Par Objectif:
+───────────────────────────────────────────────────────────────────────────────
+Démarrer rapidement          → QUICK_START_ORCHESTRATION.md
+Comprendre l'orchestration   → README_ORCHESTRATION_COMPLETE.md
+Naviguer dans les docs       → INDEX_ORCHESTRATION.md
+Analyser les automations     → RECAPITULATIF_AUTOMATIONS_CHAUFFAGE.md
+Réparer Broadlink            → DIAGNOSTIC_BROADLINK.md
+Comprendre le système        → GUIDE_ORDRE_FONCTIONNEMENT.md
+
+═══════════════════════════════════════════════════════════════════════════════
+                        EXPORTS GÉNÉRÉS (APRÈS EXÉCUTION)
+═══════════════════════════════════════════════════════════════════════════════
+
+Fichiers JSON créés par les scripts:
+───────────────────────────────────────────────────────────────────────────────
+• automation_data_export.json          (~50-100 KB)
+  → Données brutes de toutes les entités HA
+
+• automation_details_export.json       (~100-200 KB)
+  → Triggers, conditions, actions de chaque automation
+
+• broadlink_diagnostic_export.json     (~10-20 KB)
+  → État et problèmes des climatisations
+
+═══════════════════════════════════════════════════════════════════════════════
+                            STATISTIQUES
+═══════════════════════════════════════════════════════════════════════════════
+
+Documents créés                : 6 fichiers Markdown (~103 KB)
+Scripts créés                  : 3 fichiers PowerShell (~20 KB)
+Pages de documentation         : ~70 pages
+Temps estimé exécution complète: 1h30 - 2h
+Temps estimé réparation rapide : 15 minutes
+
+Automations analysées          : 17 (attendu)
+Climatisations diagnostiquées  : 3 (Salon, Maeva, Axel)
+Problèmes identifiés           : 4 (2 critiques, 2 importants)
+Solutions fournies             : 5+ avec plans d'action détaillés
+
+═══════════════════════════════════════════════════════════════════════════════
+                        CHECKLIST DE VALIDATION
+═══════════════════════════════════════════════════════════════════════════════
+
+Avant Exécution:
+───────────────────────────────────────────────────────────────────────────────
+☐ PowerShell installé
+☐ Accès à Home Assistant (http://192.168.0.166:8123)
+☐ Token HA valide
+☐ Scripts PowerShell présents
+
+Après Collecte:
+───────────────────────────────────────────────────────────────────────────────
+☐ automation_data_export.json créé
+☐ automation_details_export.json créé
+☐ broadlink_diagnostic_export.json créé
+☐ Pas d'erreurs dans les scripts
+
+Après Réparation Broadlink:
+───────────────────────────────────────────────────────────────────────────────
+☐ remote.clim_salon : ON
+☐ remote.clim_maeva : ON
+☐ remote.clim_axel : ON
+☐ Ping Broadlink Maeva (192.168.0.136) OK
+☐ Test climatisation Salon OK
+☐ Test climatisation Maeva OK
+☐ Test climatisation Axel OK
+
+═══════════════════════════════════════════════════════════════════════════════
+                        PROCHAINES ÉTAPES
+═══════════════════════════════════════════════════════════════════════════════
+
+Court Terme (Aujourd'hui):
+───────────────────────────────────────────────────────────────────────────────
+1. Exécuter check_broadlink_status.ps1
+2. Activer les 3 remote Broadlink
+3. Réparer Broadlink Maeva (si timeout)
+4. Tester les 3 climatisations
+
+Moyen Terme (Cette Semaine):
+───────────────────────────────────────────────────────────────────────────────
+1. Exécuter collecte complète (collect_automation_data.ps1)
+2. Analyser doublons automations
+3. Vérifier horaires (04:45 vs 05:45)
+4. Réserver adresses IP DHCP pour Broadlink
+
+Long Terme (Ce Mois):
+───────────────────────────────────────────────────────────────────────────────
+1. Refactoring automations
+2. Centraliser pilotage Broadlink (script unique)
+3. Ajouter monitoring (automation de surveillance)
+4. Implémenter logging détaillé
+
+═══════════════════════════════════════════════════════════════════════════════
+                        SUPPORT ET RÉFÉRENCES
+═══════════════════════════════════════════════════════════════════════════════
+
+Configuration:
+───────────────────────────────────────────────────────────────────────────────
+• Home Assistant URL : http://192.168.0.166:8123
+• MCP Agent Port     : 8099
+• MCP Config         : .claude/mcp.json
+• Token HA           : .claude/.env
+
+Documentation Complémentaire:
+───────────────────────────────────────────────────────────────────────────────
+• Best Practices Climate        : CLIMATE_CONTROL_BEST_PRACTICES.md
+• Commandes MCP                 : MCP_COMMANDS_REFERENCE.md
+• Playbook Claude               : .claude/claude.md
+• Commandes HA avec exemples    : .claude/home-assistant-commands.md
+
+═══════════════════════════════════════════════════════════════════════════════
+                        RECOMMANDATIONS FINALES
+═══════════════════════════════════════════════════════════════════════════════
+
+1. COMMENCER PAR : QUICK_START_ORCHESTRATION.md (15 min)
+   → Réparation rapide des climatisations
+
+2. ENSUITE : README_ORCHESTRATION_COMPLETE.md (2h)
+   → Analyse approfondie du système complet
+
+3. RÉFÉRENCE : INDEX_ORCHESTRATION.md
+   → Navigation rapide dans toute la documentation
+
+═══════════════════════════════════════════════════════════════════════════════
+                            AGENTS MOBILISÉS
+═══════════════════════════════════════════════════════════════════════════════
+
+Agent Orchestrator         : Coordination générale
+Agent Home-Automation      : Analyse automations et timeline
+Agent Broadlink/Devices    : Diagnostic climatisations
+Agent Refactor             : Recommandations optimisation
+Agent Consolidator         : Production documentation finale
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Document généré le : 2025-12-19
+Auteur             : Agent Orchestrator (Claude Sonnet 4.5)
+Statut             : Prêt pour exécution immédiate
+
+🚀 COMMENCEZ PAR : .\check_broadlink_status.ps1
+
+═══════════════════════════════════════════════════════════════════════════════

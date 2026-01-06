@@ -1,0 +1,82 @@
+alias: Climatisation - Pilotage Axel
+description: Pilotage automatique climatisation Axel avec mode humidite prioritaire - CORRIGE
+mode: single
+
+triggers:
+  - minutes: /3
+    trigger: time_pattern
+
+conditions: []
+
+actions:
+  - variables:
+      consigne_base: |
+        {% if is_state('input_boolean.mode_vacance','on') %}off
+        {% else %}
+          {% set mode = states('input_select.mode_chauffage_axel') %}
+          {% if mode == 'STOP' %}off
+          {% elif mode == 'MODEJOUR' %}
+            {{ states('sensor.mode_chauffage_global_temperature') | float(18.5) }}
+          {% else %}
+            {% set temp = mode | regex_findall('\((\d+\.?\d*)\)') %}
+            {% if temp | length > 0 %}
+              {{ temp | first | float(19) }}
+            {% else %}
+              19
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      boost_humidite: "{{ is_state('input_boolean.mode_humidite_axel', 'on') }}"
+      consigne: |
+        {% if consigne_base == 'off' %}off
+        {% else %}{{ consigne_base | float + (2 if boost_humidite else 0) }}
+        {% endif %}
+      t_axel: "{{ states('sensor.th_axel_temperature') | float(20) }}"
+      etat_actuel: "{{ states('climate.climatisation_axel') }}"
+
+  - service: logbook.log
+    data:
+      name: "DEBUG CLIM AXEL"
+      message: "Mode: {{ states('input_select.mode_chauffage_axel') }} | Consigne: {{ consigne }}C | T actuelle: {{ t_axel }}C | Etat: {{ etat_actuel }} | Boost: {{ boost_humidite }}"
+
+  - choose:
+      - conditions:
+          - "{{ consigne == 'off' }}"
+          - "{{ etat_actuel != 'off' }}"
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: climate.climatisation_axel
+          - service: logbook.log
+            data:
+              name: "CLIM AXEL"
+              message: "OFF (consigne=off)"
+
+      - conditions:
+          - "{{ consigne != 'off' }}"
+          - "{{ (consigne | float - t_axel) >= 0.5 }}"
+          - "{{ etat_actuel != 'heat' }}"
+        sequence:
+          - service: climate.set_temperature
+            target:
+              entity_id: climate.climatisation_axel
+            data:
+              temperature: "{{ consigne | float }}"
+              hvac_mode: heat
+          - service: logbook.log
+            data:
+              name: "CLIM AXEL"
+              message: "HEAT {{ consigne }}C (ecart: {{ (consigne | float - t_axel) | round(1) }}C)"
+
+      - conditions:
+          - "{{ consigne != 'off' }}"
+          - "{{ (consigne | float - t_axel) <= -0.5 }}"
+          - "{{ etat_actuel != 'off' }}"
+        sequence:
+          - service: climate.turn_off
+            target:
+              entity_id: climate.climatisation_axel
+          - service: logbook.log
+            data:
+              name: "CLIM AXEL"
+              message: "OFF (T atteinte: {{ t_axel }}C >= {{ consigne }}C)"

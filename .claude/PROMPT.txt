@@ -1,0 +1,25 @@
+
+
+
+
+@infra-domotique
+
+INTERDICTION ABSOLUE D’INVENTER.
+
+Avant toute analyse :
+1) Liste les entités et automatisations EXACTES via MCP
+2) Affiche les entity_id réels
+3) Sinon : “Analyse impossible sans inventaire réel”
+
+
+---
+
+## 📌 Prochaine étape (si tu veux)
+
+Je peux maintenant te fournir :
+- 📄 **`claude.md` complet (skill d’utilisation prêt à coller)**
+- 🧠 **version Planner / Executor / Validator**
+- 🔐 **mode lecture seule sécurisé**
+- 📘 **cheat-sheet PDF Home Assistant + MCP**
+
+Dis-moi simplement 👉 **la suite que tu veux activer** 🚀
