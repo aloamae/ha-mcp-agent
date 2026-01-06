@@ -1,0 +1,8 @@
+{
+    "servers": {
+        "home-assistant": {
+            "url": "http://192.168.0.166:8099",
+            "key": "jZT5-o3QZOXj00id5Z8_QOU1topknUozOWIL6QL-pl4"
+        }
+    }
+}

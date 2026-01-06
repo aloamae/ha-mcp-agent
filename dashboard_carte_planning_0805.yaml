@@ -1,9 +1,0 @@
-# Carte pour le dashboard - Toggle planning 08:05
-# A ajouter dans votre dashboard Lovelace
-
-type: entities
-title: Planning special
-entities:
-  - entity: input_boolean.planning_0805_actif
-    name: "Remise 19C a 08:05"
-    icon: mdi:clock-check-outline
